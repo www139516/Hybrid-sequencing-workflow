@@ -6,9 +6,10 @@
 # @File : FlncGenerator.py
 # @Software: PyCharm
 """
-Description: This class processes the subreads from long-read sequencing to generate full length non-chimeric CCSs (FLNC CCSs).
+Description: This class processes the subreads from long-read sequencing to generate full length non-chimeric CCSs
+  (FLNC CCSs).
 Output: FLNC CCSs file
-Input: Subreads File
+Input: Subreads.bam file
 Other notes: Using IsoSeq3 to process subreads
 """
 
@@ -28,8 +29,6 @@ class FlncGenerator:
         self._out_flccs_fpath = None
         self._in_flnc_fpath = None
         self._out_flnc_fpath = None
-
-
 
     def fit(self, subread_fpath, primer_fpath, out_dpath=''):
         """
@@ -63,6 +62,10 @@ class FlncGenerator:
         return self
 
     def sub2ccs(self):
+        """
+        generate ccs based on subreads.bam
+        :return: None
+        """
         out_file_name = self._movie_name + '.ccs.bam'
         self._out_ccs_fpath = os.path.join(self._out_dpath, out_file_name)
 
@@ -71,8 +74,11 @@ class FlncGenerator:
         if subprocess.check_call(cmd_subreads2ccs, shell=True) != 0:
             raise SystemCommandError
 
-
     def ccs2flccs(self):
+        """
+        generate full length ccs based on ccs
+        :return: None
+        """
         out_file_name = self._movie_name + '.flccs.bam'
         self._out_flccs_fpath = os.path.join(self._out_dpath, out_file_name)
         cmd_ccs2flccs = 'lima {input_ccs} {barcode} {output_flccs} '.format(input_ccs=self._out_ccs_fpath,
@@ -83,7 +89,11 @@ class FlncGenerator:
             raise SystemCommandError
 
     def flccs2flnc(self):
-        in_file_name = self._movie_name + '.flccs.5p_primer_5p--3p_primer_3p.bam'
+        """
+        generate FLNC CCSs based on FLCCS
+        :return: the path of the FLNC CCS file
+        """
+        in_file_name = self._movie_name + '.flccs.primer_5p--primer_3p.bam'
         self._in_flnc_fpath = os.path.join(self._out_dpath, in_file_name)
         out_file_name = self._movie_name + '.flnc.bam'
         self._out_flnc_fpath = os.path.join(self._out_dpath, out_file_name)
