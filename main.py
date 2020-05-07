@@ -25,8 +25,8 @@ from proc_modules.correct_FLNC.FLNC_corrector import FlncCorrect
 @click.option("--primer", help="The sequence of primer used in the PacBio sequencing")
 @click.option('--proov', help='The path of the proovread exec file, usually under the bin/. Do not need give \
                               if the proovread is already added to the $PATH', default='')
-@click.option('--sread', help='The path of the short-read sequencing file (RNA-seq), seperated by one space', nargs=-1)
-def main(subreads, output, primer, proov, sread):
+@click.argument('short_read_seq_files', nargs=-1)
+def main(subreads, output, primer, proov, short_read_seq_files):
 
     flnc_gen = FlncGenerator()
     flnc_gen.fit(subreads, primer, output)
@@ -35,9 +35,8 @@ def main(subreads, output, primer, proov, sread):
     flnc_fpath = flnc_gen.flccs2flnc()
 
     flnc_corrector = FlncCorrect()
-    flnc_corrector = flnc_corrector.fit(flnc_fpath, sread, proov)
+    flnc_corrector = flnc_corrector.fit(flnc_fpath, short_read_seq_files, proov)
     pread_out_dpath = flnc_corrector.correct_flnc()
-
 
 if __name__ == '__main__':
     main()
