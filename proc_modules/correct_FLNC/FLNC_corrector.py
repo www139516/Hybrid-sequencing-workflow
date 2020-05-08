@@ -21,6 +21,8 @@ class FlncCorrect:
 
     def __init__(self):
         self._flnc_fpath = None
+        self._flnc_fa_fpath = None
+        self._out_dpath_uppername = None
         self._short_read_fpaths = None
         self._proovread_fpath = None
         self._movie_name = None
@@ -40,6 +42,23 @@ class FlncCorrect:
             self._proovread_fpath = 'proovread'
         else:
             self._proovread_fpath = get_abspath_from_input_path(proovread_fpath)
+        self._out_dpath_uppername = os.path.dirname(self._flnc_fpath)
+        return self
+
+    def bam2fa(self):
+        """
+        convert the .bam to .fasta format
+        :return: path of the fasta file
+        """
+        out_file_name = self._movie_name + '.flnc.fasta'
+        self._flnc_fa_fpath = os.path.join(self._out_dpath_uppername, out_file_name)
+        if not os.path.exists(self._flnc_fa_fpath):
+            cmd_bam2fa = '''
+            samtools view {flnc_bam_path} | awk \
+                    '{{OFS="\\t"; print ">"$1"\\n"$10}}' - > {flnc_fa_path}
+            '''.format(flnc_bam_path=self._flnc_fpath, flnc_fa_path=self._flnc_fa_fpath)
+            if subprocess.check_call(cmd_bam2fa, shell=True) != 0:
+                raise SystemCommandError
         return self
 
     def correct_flnc(self):
@@ -48,13 +67,12 @@ class FlncCorrect:
         :return: the directory path of the corrected sequences file
         """
         prooread_out_dpath_basename = self._movie_name + '_pread'
-        out_dpath_uppername = os.path.dirname(self._flnc_fpath)
-        self._out_dpath = os.path.join(out_dpath_uppername, prooread_out_dpath_basename)
+        self._out_dpath = os.path.join(self._out_dpath_uppername, prooread_out_dpath_basename)
         cmd_correct_seq = '{path_of_proovread} -l {long_read_seq_fpath} -s {short_read_seq_fpaths} \
-            -p {pre}} > proovread.log'.format(path_of_proovread=self._proovread_fpath,
-                                              long_read_seq_fpath=self._flnc_fpath,
-                                              short_read_seq_fpaths=' '.join(self._short_read_fpaths),
-                                              pre=self._out_dpath)
+            -p {pre} > proovread.log'.format(path_of_proovread=self._proovread_fpath,
+                                             long_read_seq_fpath=self._flnc_fa_fpath,
+                                             short_read_seq_fpaths=' '.join(self._short_read_fpaths),
+                                             pre=self._out_dpath)
         if subprocess.check_call(cmd_correct_seq, shell=True) != 0:
             raise SystemCommandError
         return self._out_dpath

@@ -68,11 +68,14 @@ class FlncGenerator:
         """
         out_file_name = self._movie_name + '.ccs.bam'
         self._out_ccs_fpath = os.path.join(self._out_dpath, out_file_name)
-
-        cmd_subreads2ccs = 'ccs {input_subreads} {output} '.format(input_subreads=self._subread_fpath,
-                                                                   output=self._out_ccs_fpath) + '--noPolish --minPasses 1'
-        if subprocess.check_call(cmd_subreads2ccs, shell=True) != 0:
-            raise SystemCommandError
+        if os.path.exists(self._out_ccs_fpath):
+            print('{} already exists.'.format(self._out_ccs_fpath))
+        else:
+            cmd_subreads2ccs = 'ccs {input_subreads} {output} '.format(input_subreads=self._subread_fpath,
+                                                                       output=self._out_ccs_fpath) + \
+                               '--noPolish --minPasses 1'
+            if subprocess.check_call(cmd_subreads2ccs, shell=True) != 0:
+                raise SystemCommandError
 
     def ccs2flccs(self):
         """
@@ -81,12 +84,15 @@ class FlncGenerator:
         """
         out_file_name = self._movie_name + '.flccs.bam'
         self._out_flccs_fpath = os.path.join(self._out_dpath, out_file_name)
-        cmd_ccs2flccs = 'lima {input_ccs} {barcode} {output_flccs} '.format(input_ccs=self._out_ccs_fpath,
-                                                                            barcode=self._primer_fpath,
-                                                                            output_flccs=self._out_flccs_fpath) + \
-                        '--isoseq --no-pbi --peek-guess'
-        if subprocess.check_call(cmd_ccs2flccs, shell=True) != 0:
-            raise SystemCommandError
+        if os.path.exists(self._out_flccs_fpath):
+            print('{} already exists.'.format(self._out_flccs_fpath))
+        else:
+            cmd_ccs2flccs = 'lima {input_ccs} {barcode} {output_flccs} '.format(input_ccs=self._out_ccs_fpath,
+                                                                                barcode=self._primer_fpath,
+                                                                                output_flccs=self._out_flccs_fpath) + \
+                            '--isoseq --no-pbi --peek-guess'
+            if subprocess.check_call(cmd_ccs2flccs, shell=True) != 0:
+                raise SystemCommandError
 
     def flccs2flnc(self):
         """
@@ -97,13 +103,15 @@ class FlncGenerator:
         self._in_flnc_fpath = os.path.join(self._out_dpath, in_file_name)
         out_file_name = self._movie_name + '.flnc.bam'
         self._out_flnc_fpath = os.path.join(self._out_dpath, out_file_name)
-        cmd_flccs2flnc = "isoseq3 refine {input_flccs} {barcode} {output_flnc} ".format(input_flccs=self._in_flnc_fpath,
-                                                                                        barcode=self._primer_fpath,
-                                                                                        output_flnc=self._out_flnc_fpath) + \
-                         "--require-polya"
-        if subprocess.check_call(cmd_flccs2flnc, shell=True) != 0:
-            raise SystemCommandError
-
+        if os.path.exists(self._out_flnc_fpath):
+            print('{} already exists.'.format(self._out_flnc_fpath))
+        else:
+            cmd_flccs2flnc = "isoseq3 refine {input_flccs} {barcode} {output_flnc} ".format(input_flccs=self._in_flnc_fpath,
+                                                                                            barcode=self._primer_fpath,
+                                                                                            output_flnc=self._out_flnc_fpath) + \
+                             "--require-polya"
+            if subprocess.check_call(cmd_flccs2flnc, shell=True) != 0:
+                raise SystemCommandError
         return self._out_flnc_fpath
 
 

@@ -36,6 +36,7 @@ def main(subreads, output, primer, proov, short_read_seq_files):
 
     flnc_corrector = FlncCorrect()
     flnc_corrector = flnc_corrector.fit(flnc_fpath, short_read_seq_files, proov)
+    flnc_corrector = flnc_corrector.bam2fa()
     pread_out_dpath = flnc_corrector.correct_flnc()
 
 if __name__ == '__main__':
